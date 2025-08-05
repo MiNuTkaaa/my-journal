@@ -55,6 +55,13 @@ class AppManager {
         this.cancelCategoryBtn = document.getElementById('cancelCategoryBtn');
         this.closeCategoryModal = document.getElementById('closeCategoryModal');
         
+        // Edit category elements
+        this.editCategoryModal = document.getElementById('editCategoryModal');
+        this.saveEditCategoryBtn = document.getElementById('saveEditCategoryBtn');
+        this.cancelEditCategoryBtn = document.getElementById('cancelEditCategoryBtn');
+        this.closeEditCategoryModal = document.getElementById('closeEditCategoryModal');
+        this.currentEditingCategory = null;
+        
         // Point management elements
         this.createPointModal = document.getElementById('createPointModal');
         this.savePointBtn = document.getElementById('savePointBtn');
@@ -97,6 +104,11 @@ class AppManager {
         this.saveCategoryBtn.addEventListener('click', () => this.saveCategory());
         this.cancelCategoryBtn.addEventListener('click', () => this.closeModal(this.createCategoryModal));
         this.closeCategoryModal.addEventListener('click', () => this.closeModal(this.createCategoryModal));
+        
+        // Edit category events
+        this.saveEditCategoryBtn.addEventListener('click', () => this.saveEditCategory());
+        this.cancelEditCategoryBtn.addEventListener('click', () => this.closeModal(this.editCategoryModal));
+        this.closeEditCategoryModal.addEventListener('click', () => this.closeModal(this.editCategoryModal));
         
         // Point management events
         this.savePointBtn.addEventListener('click', () => this.savePoint());
@@ -205,6 +217,7 @@ class AppManager {
             }
         });
         this.currentEditingPoint = null;
+        this.currentEditingCategory = null;
     }
 
     // Record day methods
@@ -313,6 +326,45 @@ class AppManager {
         }
     }
 
+    openEditCategoryModal(categoryId) {
+        const category = storageManager.getCategoryById(categoryId);
+        if (category) {
+            this.currentEditingCategory = categoryId;
+            document.getElementById('editCategoryName').value = category.name;
+            document.getElementById('editCategoryColor').value = category.color;
+            this.openModal(this.editCategoryModal);
+        }
+    }
+
+    saveEditCategory() {
+        const name = document.getElementById('editCategoryName').value.trim();
+        const color = document.getElementById('editCategoryColor').value;
+        
+        if (!name) {
+            alert('Please enter a category name.');
+            return;
+        }
+        
+        if (storageManager.updateCategory(this.currentEditingCategory, { name, color })) {
+            this.closeModal(this.editCategoryModal);
+            this.renderGradingScreen();
+            this.showNotification('Category updated successfully!');
+        } else {
+            alert('Error updating category. Please try again.');
+        }
+    }
+
+    deleteCategory(categoryId) {
+        if (confirm('Are you sure you want to delete this category? This will remove all associated points.')) {
+            if (storageManager.deleteCategory(categoryId)) {
+                this.renderGradingScreen();
+                this.showNotification('Category deleted successfully!');
+            } else {
+                alert('Error deleting category. Please try again.');
+            }
+        }
+    }
+
     // Point management methods
     openCreatePointModal(categoryId) {
         const categorySelect = document.getElementById('pointCategory');
@@ -396,10 +448,17 @@ class AppManager {
             
             html += `
                 <div class="category-card">
-                    <div class="category-header" style="border-left-color: ${category.color}" 
-                         onclick="app.toggleCategory('${category.id}')">
-                        <div class="category-name">${category.name}</div>
-                        <div class="category-toggle" id="toggle-${category.id}">▼</div>
+                    <div class="category-header" style="border-left-color: ${category.color}">
+                        <div class="category-name" onclick="app.toggleCategory('${category.id}')">${category.name}</div>
+                        <div class="category-header-actions">
+                            <button class="edit-btn" onclick="app.openEditCategoryModal('${category.id}')" title="Edit Category">
+                                ✏️
+                            </button>
+                            <button class="delete-btn" onclick="app.deleteCategory('${category.id}')" title="Delete Category">
+                                🗑️
+                            </button>
+                            <div class="category-toggle" onclick="app.toggleCategory('${category.id}')" id="toggle-${category.id}">▼</div>
+                        </div>
                     </div>
                     <div class="category-content" id="content-${category.id}">
                         <div class="points-list">
