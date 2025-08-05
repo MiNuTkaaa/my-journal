@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2196F3">
+    <title>Athlete Journal</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Icons -->
+    <link rel="apple-touch-icon" href="images/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <h1>Athlete Journal</h1>
+            <div class="header-actions">
+                <button id="recordDayBtn" class="btn btn-primary">Record a Day</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- My Progress Screen -->
+            <div id="progressScreen" class="screen active">
+                <!-- Date Filter -->
+                <div class="filter-container">
+                    <select id="dateFilter" class="filter-select">
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="year">This Year</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                    <div id="customDateRange" class="custom-date-range hidden">
+                        <input type="date" id="startDate" />
+                        <input type="date" id="endDate" />
+                        <button id="applyDateRange" class="btn btn-secondary">Apply</button>
+                    </div>
+                </div>
+
+                <!-- Charts Container -->
+                <div class="charts-container">
+                    <!-- Bar Chart -->
+                    <div class="chart-section">
+                        <h3>Performance Overview</h3>
+                        <canvas id="barChart"></canvas>
+                    </div>
+
+                    <!-- Life Wheel Chart -->
+                    <div class="chart-section">
+                        <h3>Life Balance</h3>
+                        <canvas id="lifeWheelChart"></canvas>
+                    </div>
+
+                    <!-- Deleted Points Chart -->
+                    <div class="chart-section">
+                        <button id="toggleDeletedBtn" class="btn btn-secondary">Show Deleted Points</button>
+                        <div id="deletedChartContainer" class="hidden">
+                            <h3>Deleted Points</h3>
+                            <canvas id="deletedChart"></canvas>
+                            
+                            <!-- Trash Bin List -->
+                            <div class="trash-bin-section">
+                                <h4>Trash Bin</h4>
+                                <div id="trashBinList" class="trash-bin-list"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Past Ratings -->
+                    <div class="chart-section">
+                        <button id="togglePastRatingsBtn" class="btn btn-secondary">Show Past Ratings</button>
+                        <div id="pastRatingsContainer" class="hidden">
+                            <h3>Past Ratings</h3>
+                            <div id="pastRatingsList" class="past-ratings-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Points of Grading Screen -->
+            <div id="gradingScreen" class="screen">
+                <div class="grading-header">
+                    <button id="createCategoryBtn" class="btn btn-primary">
+                        <span class="icon">+</span> Create Category
+                    </button>
+                </div>
+                <div id="categoriesContainer" class="categories-container"></div>
+            </div>
+
+            <!-- Record Day Modal -->
+            <div id="recordDayModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Record Today's Performance</h2>
+                        <button id="closeRecordModal" class="close-btn">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="recordingForm" class="recording-form"></div>
+                        <div class="modal-actions">
+                            <button id="saveRecordBtn" class="btn btn-primary">Save</button>
+                            <button id="cancelRecordBtn" class="btn btn-secondary">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Category Modal -->
+            <div id="createCategoryModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Create New Category</h2>
+                        <button id="closeCategoryModal" class="close-btn">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="categoryName">Category Name:</label>
+                            <input type="text" id="categoryName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="categoryColor">Category Color:</label>
+                            <input type="color" id="categoryColor" value="#2196F3">
+                        </div>
+                        <div class="modal-actions">
+                            <button id="saveCategoryBtn" class="btn btn-primary">Create</button>
+                            <button id="cancelCategoryBtn" class="btn btn-secondary">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Point Modal -->
+            <div id="createPointModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Create New Point</h2>
+                        <button id="closePointModal" class="close-btn">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="pointName">Point Name:</label>
+                            <input type="text" id="pointName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="pointCategory">Category:</label>
+                            <select id="pointCategory" required>
+                                <option value="">Select a category</option>
+                            </select>
+                        </div>
+                        <div class="modal-actions">
+                            <button id="savePointBtn" class="btn btn-primary">Create</button>
+                            <button id="cancelPointBtn" class="btn btn-secondary">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Point Modal -->
+            <div id="editPointModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Edit Point</h2>
+                        <button id="closeEditPointModal" class="close-btn">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="editPointName">Point Name:</label>
+                            <input type="text" id="editPointName" required>
+                        </div>
+                        <div class="modal-actions">
+                            <button id="saveEditPointBtn" class="btn btn-primary">Save</button>
+                            <button id="cancelEditPointBtn" class="btn btn-secondary">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button id="progressTab" class="nav-btn active" data-screen="progressScreen">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">My Progress</span>
+            </button>
+            <button id="gradingTab" class="nav-btn" data-screen="gradingScreen">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Points of Grading</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/storage.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/app.js"></script>
+    
+    <!-- PWA Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => console.log('SW registered'))
+                    .catch(error => console.log('SW registration failed'));
+            });
+        }
+    </script>
+</body>
+</html>
