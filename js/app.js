@@ -191,6 +191,11 @@ class AppManager {
         this.pastRatingsContainer.classList.toggle('hidden');
         const isVisible = !this.pastRatingsContainer.classList.contains('hidden');
         this.togglePastRatingsBtn.textContent = isVisible ? 'Hide Past Ratings' : 'Show Past Ratings';
+        
+        // Render past ratings when showing them
+        if (isVisible) {
+            this.renderPastRatings();
+        }
     }
 
     // Modal methods

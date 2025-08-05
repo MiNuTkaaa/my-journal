@@ -661,11 +661,12 @@ body {
     
     .main-content {
         padding: 0.75rem;
-        padding-bottom: 120px; /* Even more space for bottom nav on mobile */
+        padding-bottom: 140px; /* More space for bottom nav on mobile */
     }
     
     .charts-container .chart-section:last-child {
-        margin-bottom: 2rem; /* Extra margin for the last section */
+        margin-bottom: 3rem; /* Even more margin for the last section */
+        padding-bottom: 2rem; /* Additional padding for the last section */
     }
     
     .chart-section {
@@ -681,10 +682,34 @@ body {
         width: 100%;
         max-width: none;
         box-sizing: border-box;
+        position: relative;
+        z-index: 10;
     }
     
     .btn-secondary {
-        margin-bottom: 0.5rem;
+        margin-bottom: 1rem; /* More margin for secondary buttons */
+    }
+    
+    /* Past ratings specific mobile fixes */
+    #togglePastRatingsBtn {
+        margin-bottom: 1rem !important;
+        display: block !important;
+    }
+    
+    #pastRatingsContainer {
+        margin-bottom: 2rem;
+        max-height: 400px;
+        overflow-y: auto;
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .past-ratings-list {
+        max-height: 300px;
+        overflow-y: auto;
+        margin-bottom: 1rem;
     }
     
     .modal-content {
